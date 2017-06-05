@@ -23,10 +23,13 @@ $msg['botwins'] = 'Muhaha! I won!'.PHP_EOL.'Rise of the machines!';
 $msg['remi'] = 'Noone won!'.PHP_EOL.'Send /start play a new game';
 
 if ($chatId) {    //to hide warnings from website
+  $arg1 = explode(' ', $inputMsg)[1];
   switch ($command) {
     case '/start':
       sendMsg($chatId, $msg['start'], '');
-      start($chatId);
+      if ($arg1 == '2') $twoPlayer = TRUE;
+      else $twoPlayer = FALSE;
+      start($chatId, $twoPlayer);
       break;
     case '/help':
       sendMsg($chatId, $msg['help'], '');
@@ -42,10 +45,11 @@ if($input['callback_query']) {
   $command = explode(' ', $callbackData)[0];
   $arg1 = explode(' ', $callbackData)[1];
   $arg2 = explode(' ', $callbackData)[2];
+  $arg3 = explode(' ', $callbackData)[3];
   //printField($callbackId, decField($arg2));
   switch($command) {
     case '/col':
-      updateField($callbackId, $arg1, $arg2);
+      updateField($callbackId, $arg1, $arg2, $arg3);
       break;
     default:
       break;
@@ -55,32 +59,35 @@ if($input['callback_query']) {
 
 //command functions
 
-function updateField ($callbackId, $col, $encField) {
+function updateField ($callbackId, $col, $encField, $twoPlayer) {
   global $msg;
   $field = addStone(decField($encField), $col, 1);
   printField($callbackId, $field);
   if (checkWin($callbackId, $field) == 1)
     sendMsg($callbackId, $msg['playerwins'], '');
   else {
-    $field = playBot($field);
+    if (!$twoPlayer)
+      $field = playBot($field);
+    else
+      //@TODO 2 player mode
     if ($field == FALSE)
       sendMsg($callbackId, $msg['remi'], '');
     printField($callbackId, $field);
     if (checkWin($callbackId, $field) == 2)
       sendMsg($callbackId, $msg['botwins'], '');
     else
-      printSelection($callbackId, $field, $msg['selection']);
+      printSelection($callbackId, $field, $msg['selection'], $twoPlayer);
   }//else
 }//updateField
 
-function start ($chatId) {
+function start ($chatId, $twoPlayer) {
   global $msg;
   //init field
-  for ($row = 0; $row < 3; $row++)
-    for ($col = 0; $col < 5; $col++)
+  for ($row = 0; $row < 7; $row++)
+    for ($col = 0; $col < 7; $col++)
       $field[$row][$col] = 0;
   printField($chatId, $field);
-  printSelection($chatId, $field, $msg['selection']);
+  printSelection($chatId, $field, $msg['selection'], $twoPlayer);
 }//start
 
 ?>

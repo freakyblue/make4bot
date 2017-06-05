@@ -18,6 +18,17 @@ function apiRequest ($methode) {
   return file_get_contents($GLOBALS[website].'/'.$methode);
 }//apiRequest
 
+function bestmove ($r) {
+  $best = 0;
+  $w = -10;
+  for ($x = 0; $x < count($r); $x++)
+    if ($r[$x][1] > $w){
+      $best = $r[$x][0];
+      $w = $r[$x][1];
+    }//if
+  return $best;
+}//bestmove
+
 function checkWin ($chatId, $field) {
   for ($row = 0; $row < count($field); $row++)
     for ($col = 0; $col < count($field[0]); $col++) {
@@ -41,6 +52,13 @@ function checkWin ($chatId, $field) {
   return 0;
 }//checkWin
 
+function decField ($encField) {
+  $rows = explode('|', $encField);
+  for ($row = 0; $row < count($rows); $row++)
+    $field[$row] = str_split($rows[$row]);
+  return $field;
+}//decField
+
 function encField ($field) {
   for ($row = 0; $row < count($field); $row++) {
     for ($col = 0; $col < count($field[0]); $col++)
@@ -51,24 +69,38 @@ function encField ($field) {
   return $out;
 }//encField
 
-function decField ($encField) {
-  $rows = explode('|', $encField);
-  for ($row = 0; $row < count($rows); $row++)
-    $field[$row] = str_split($rows[$row]);
-  return $field;
-}//decField
-
 function inlineKeys ($buttons, $chatId, $msg) {
   $keyboard = json_encode(array('inline_keyboard' => $buttons));
   apiRequest('sendmessage?parse_mode=Markdown&chat_id='.$chatId.'&text='.urlencode($msg).'&reply_markup='.$keyboard);
 }//inlineKeys
 
-function sendMsg ($chatId, $msg, $mode) {
-  if ($mode == '') $msg = urlencode($msg);
-  apiRequest('sendmessage?parse_mode='.$mode.'&chat_id='.$chatId.'&text='.$msg);
-}//sendMsg
+function playBot ($field) {
 
-function playBot ($field) {   //@TODO to improve ;)
+  //level 1
+  //if bot can win
+  foreach (possibleCols($field) as $option)
+    if (checkWin(0, addStone($field, $option, 2)) == 2)
+      return addStone($field, $option, 2);
+    //if bot can prevent win of user
+  foreach (possibleCols($field) as $option)
+    if (checkWin(0, addStone($field, $option, 1)) == 1)
+      return addStone($field, $option, 2);
+
+  //level 2
+  foreach (possibleCols($field) as $myoption) {
+    $usersfield = addStone($field, $myoption, 2);
+    foreach (possibleCols($usersfield) as $useroption) {
+      $mynewfield = addStone($usersfield, $useroption, 1);
+      foreach (possibleCols($mynewfield) as $mynewoption)
+        if (checkWin(0, addStone($mynewfield, $mynewoption, 2)) == 2)
+          return addStone($field, $myoption, 2);
+    }//foreach
+  }//foreach
+
+  //return addStone($field, bestmove(rating($field)), 2);
+
+  //level 0
+  // place stones random
   do {
     $newfield = addStone($field, rand(0,count($field[0])-1), 2);
     if (count(possibleCols($field)) == 0)
@@ -84,6 +116,11 @@ function possibleCols ($field) {
       $out[] = $col;
   return $out;
 }//possibleCols
+
+function pr($r){
+  for ($x = 0; $x < count($r); $x++)
+    $out .= $r[$x][0].' -> '.$r[$x][1].PHP_EOL;
+}//pr
 
 function printField($chatId, $field) {
   $out = '`';
@@ -111,13 +148,31 @@ function printField($chatId, $field) {
   sendMsg($chatId, $out, 'Markdown');
 }//printField
 
-function printSelection ($chatId, $field, $msg) {
+function printSelection ($chatId, $field, $msg, $twoPlayer) {
   foreach (possibleCols($field) as $col)
     $but[0][] = array(
       'text' => ' '.strval($col+1).' ',
-      'callback_data' => '/col '.strval($col).' '.encField($field)
+      'callback_data' => '/col '.strval($col).' '.encField($field).' '.$twoPlayer
     );
   inlineKeys($but, $chatId, $msg);
 }//printSelection
+
+function rating ($field) {
+  foreach (possibleCols($field) as $option)   //initialize
+    $rating[] = array($option, 0);
+  for ($x = 0; $x < count($rating); $x++) {
+    if (checkWin(0, addStone($field, $rating[$x][0], 2)) == 2)
+      $rating[$x][1] = 10;
+    if (checkWin(0, addStone($field, $rating[$x][0], 1)) == 1)
+      $rating[$x][1] = 9;
+  }//for
+  pr($rating);
+  return $rating;
+}//rating
+
+function sendMsg ($chatId, $msg, $mode) {
+  if ($mode == '') $msg = urlencode($msg);
+  apiRequest('sendmessage?parse_mode='.$mode.'&chat_id='.$chatId.'&text='.$msg);
+}//sendMsg
 
 ?>
