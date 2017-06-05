@@ -5,6 +5,15 @@ define('BLUE', '🔵', true); //bot plays blue 2
 
 $website = 'https://api.telegram.org/bot'.$token;
 
+function addStone ($field, $col, $player) {
+  for ($row = 0; $row < count($field); $row++)
+    if ($field[$row][$col] == 0) {
+      $field[$row][$col] = $player;
+      return $field;
+    }//if
+  return FALSE;
+}//addStone
+
 function apiRequest ($methode) {
   return file_get_contents($GLOBALS[website].'/'.$methode);
 }//apiRequest
@@ -49,10 +58,32 @@ function decField ($encField) {
   return $field;
 }//decField
 
+function inlineKeys ($buttons, $chatId, $msg) {
+  $keyboard = json_encode(array('inline_keyboard' => $buttons));
+  apiRequest('sendmessage?parse_mode=Markdown&chat_id='.$chatId.'&text='.urlencode($msg).'&reply_markup='.$keyboard);
+}//inlineKeys
+
 function sendMsg ($chatId, $msg, $mode) {
   if ($mode == '') $msg = urlencode($msg);
   apiRequest('sendmessage?parse_mode='.$mode.'&chat_id='.$chatId.'&text='.$msg);
 }//sendMsg
+
+function playBot ($field) {   //@TODO to improve ;)
+  do {
+    $newfield = addStone($field, rand(0,count($field[0])-1), 2);
+    if (count(possibleCols($field)) == 0)
+      return FALSE;
+  }//do
+  while ($newfield == FALSE);
+  return $newfield;
+}//playBot
+
+function possibleCols ($field) {
+  for ($col = 0; $col < count($field[0]); $col++)
+    if ($field[(count($field)-1)][$col] == 0)
+      $out[] = $col;
+  return $out;
+}//possibleCols
 
 function printField($chatId, $field) {
   $out = '`';
@@ -81,17 +112,12 @@ function printField($chatId, $field) {
 }//printField
 
 function printSelection ($chatId, $field, $msg) {
-  for ($col = 0; $col < 7; $col++)
-    $but[0][$col] = array(
+  foreach (possibleCols($field) as $col)
+    $but[0][] = array(
       'text' => ' '.strval($col+1).' ',
       'callback_data' => '/col '.strval($col).' '.encField($field)
     );
   inlineKeys($but, $chatId, $msg);
 }//printSelection
-
-function inlineKeys ($buttons, $chatId, $msg) {
-  $keyboard = json_encode(array('inline_keyboard' => $buttons));
-  apiRequest('sendmessage?parse_mode=Markdown&chat_id='.$chatId.'&text='.urlencode($msg).'&reply_markup='.$keyboard);
-}//inlineKeys
 
 ?>

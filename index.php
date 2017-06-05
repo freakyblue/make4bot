@@ -18,7 +18,9 @@ $msg['start'] = 'Hallo '.$sender['first_name'].PHP_EOL.'Schön, dass Sie diesen 
   'Dieser Bot befindet sich noch in der Entwicklungsphase.';
 $msg['selection'] = 'Wähle eine Reihe aus:';
 $msg['help'] = 'Hallo '.$sender['first_name'].PHP_EOL.'Womit kann ich helfen?';
-
+$msg['playerwins'] = 'Herzlichen Glückwunsch.'.PHP_EOL.'Sie haben gewonnen';
+$msg['botwins'] = 'Muhaha! I won!'.PHP_EOL.'Rise of the machines!';
+$msg['remi'] = 'Noone won!'.PHP_EOL.'Send /start play a new game';
 
 if ($chatId) {    //to hide warnings from website
   switch ($command) {
@@ -54,20 +56,28 @@ if($input['callback_query']) {
 //command functions
 
 function updateField ($callbackId, $col, $encField) {
-  $field = decField($encField);
-  for ($row = 0; $row < count($field); $row++)
-    if ($field[$row][$col] == 0) {
-      $field[$row][$col] = 1;
-      break;
-    }//if
-  return $field;
+  global $msg;
+  $field = addStone(decField($encField), $col, 1);
+  printField($callbackId, $field);
+  if (checkWin($callbackId, $field) == 1)
+    sendMsg($callbackId, $msg['playerwins'], '');
+  else {
+    $field = playBot($field);
+    if ($field == FALSE)
+      sendMsg($callbackId, $msg['remi'], '');
+    printField($callbackId, $field);
+    if (checkWin($callbackId, $field) == 2)
+      sendMsg($callbackId, $msg['botwins'], '');
+    else
+      printSelection($callbackId, $field, $msg['selection']);
+  }//else
 }//updateField
 
 function start ($chatId) {
   global $msg;
   //init field
-  for ($row = 0; $row < 7; $row++)
-    for ($col = 0; $col < 7; $col++)
+  for ($row = 0; $row < 3; $row++)
+    for ($col = 0; $col < 5; $col++)
       $field[$row][$col] = 0;
   printField($chatId, $field);
   printSelection($chatId, $field, $msg['selection']);
