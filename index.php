@@ -39,10 +39,11 @@ if ($chatId) {    //to hide warnings from website
 if($input['callback_query']) {
   $command = explode(' ', $callbackData)[0];
   $arg1 = explode(' ', $callbackData)[1];
-  //$arg2 = explode(' ', $callbackData)[2].' '.explode(' ', $callbackData)[3].' '.explode(' ', $callbackData)[4];
+  $arg2 = explode(' ', $callbackData)[2];
+  //printField($callbackId, decField($arg2));
   switch($command) {
     case '/col':
-      updateField($callbackId, $arg1);
+      updateField($callbackId, $arg1, $arg2);
       break;
     default:
       break;
@@ -52,7 +53,14 @@ if($input['callback_query']) {
 
 //command functions
 
-function updateField ($callbackId, $col) {
+function updateField ($callbackId, $col, $encField) {
+  $field = decField($encField);
+  for ($row = 0; $row < count($field); $row++)
+    if ($field[$row][$col] == 0) {
+      $field[$row][$col] = 1;
+      break;
+    }//if
+  return $field;
 }//updateField
 
 function start ($chatId) {
@@ -62,7 +70,7 @@ function start ($chatId) {
     for ($col = 0; $col < 7; $col++)
       $field[$row][$col] = 0;
   printField($chatId, $field);
-  printSelection($chatId, $msg['selection']);
+  printSelection($chatId, $field, $msg['selection']);
 }//start
 
 ?>

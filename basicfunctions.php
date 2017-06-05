@@ -1,7 +1,7 @@
 <?php
 define('WHITE', '⚪️', true);
-define('BLUE', '🔵', true);
-define('RED', '🔴', true);
+define('RED', '🔴', true);  //user plays red 1
+define('BLUE', '🔵', true); //bot plays blue 2
 
 $website = 'https://api.telegram.org/bot'.$token;
 
@@ -42,8 +42,8 @@ function encField ($field) {
   return $out;
 }//encField
 
-function decField ($string) {
-  $rows = explode('|', $string);
+function decField ($encField) {
+  $rows = explode('|', $encField);
   for ($row = 0; $row < count($rows); $row++)
     $field[$row] = str_split($rows[$row]);
   return $field;
@@ -80,9 +80,12 @@ function printField($chatId, $field) {
   sendMsg($chatId, $out, 'Markdown');
 }//printField
 
-function printSelection ($chatId, $msg) {
+function printSelection ($chatId, $field, $msg) {
   for ($col = 0; $col < 7; $col++)
-    $but[0][$col] = array('text' => ' '.strval($col+1).' ', 'callback_data' => '/col '.strval($col));
+    $but[0][$col] = array(
+      'text' => ' '.strval($col+1).' ',
+      'callback_data' => '/col '.strval($col).' '.encField($field)
+    );
   inlineKeys($but, $chatId, $msg);
 }//printSelection
 
