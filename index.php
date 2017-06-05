@@ -16,7 +16,7 @@ $callbackData = $input['callback_query']['data'];
 //answer messagee
 $msg['start'] = 'Hallo '.$sender['first_name'].PHP_EOL.'Schön, dass Sie diesen Bot gefunden haben.'.PHP_EOL.
   'Dieser Bot befindet sich noch in der Entwicklungsphase.';
-$msg['start_desc'] = 'Wähle eine Reihe aus:';
+$msg['selection'] = 'Wähle eine Reihe aus:';
 $msg['help'] = 'Hallo '.$sender['first_name'].PHP_EOL.'Womit kann ich helfen?';
 
 
@@ -36,7 +36,25 @@ if ($chatId) {    //to hide warnings from website
 }//if
 
 
+if($input['callback_query']) {
+  $command = explode(' ', $callbackData)[0];
+  $arg1 = explode(' ', $callbackData)[1];
+  //$arg2 = explode(' ', $callbackData)[2].' '.explode(' ', $callbackData)[3].' '.explode(' ', $callbackData)[4];
+  switch($command) {
+    case '/col':
+      updateField($callbackId, $arg1);
+      break;
+    default:
+      break;
+    }//switch
+}//if
+
+
 //command functions
+
+function updateField ($callbackId, $col) {
+}//updateField
+
 function start ($chatId) {
   global $msg;
   //init field
@@ -44,10 +62,7 @@ function start ($chatId) {
     for ($col = 0; $col < 7; $col++)
       $field[$row][$col] = 0;
   printField($chatId, $field);
-
-  for ($col = 0; $col < 7; $col++)
-    $but[0][$col] = array('text' => strval($col+1), 'callback_data' => '/col '.strval($col));
-  inlineKeys($but, $chatId, $msg['start_desc']);
+  printSelection($chatId, $msg['selection']);
 }//start
 
 ?>

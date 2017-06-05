@@ -32,6 +32,23 @@ function checkWin ($chatId, $field) {
   return 0;
 }//checkWin
 
+function encField ($field) {
+  for ($row = 0; $row < count($field); $row++) {
+    for ($col = 0; $col < count($field[0]); $col++)
+      $out .= $field[$row][$col];
+    if ($row < count($field)-1)
+      $out .= '|';
+  }//for
+  return $out;
+}//encField
+
+function decField ($string) {
+  $rows = explode('|', $string);
+  for ($row = 0; $row < count($rows); $row++)
+    $field[$row] = str_split($rows[$row]);
+  return $field;
+}//decField
+
 function sendMsg ($chatId, $msg, $mode) {
   if ($mode == '') $msg = urlencode($msg);
   apiRequest('sendmessage?parse_mode='.$mode.'&chat_id='.$chatId.'&text='.$msg);
@@ -39,9 +56,9 @@ function sendMsg ($chatId, $msg, $mode) {
 
 function printField($chatId, $field) {
   $out = '`';
-  for ($row = (count($field)-1); $row >= 0; $row--) {
+  for ($row = (count($field)-1); $row >= -1; $row--) {
     for ($col = 0; $col < count($field[0]); $col++) {
-      if ($row == count($field)) {
+      if ($row == -1) {
         $out .= ' '.($col+1).' ';
         continue;
       }//if
@@ -62,6 +79,12 @@ function printField($chatId, $field) {
   $out .= '`';
   sendMsg($chatId, $out, 'Markdown');
 }//printField
+
+function printSelection ($chatId, $msg) {
+  for ($col = 0; $col < 7; $col++)
+    $but[0][$col] = array('text' => ' '.strval($col+1).' ', 'callback_data' => '/col '.strval($col));
+  inlineKeys($but, $chatId, $msg);
+}//printSelection
 
 function inlineKeys ($buttons, $chatId, $msg) {
   $keyboard = json_encode(array('inline_keyboard' => $buttons));
