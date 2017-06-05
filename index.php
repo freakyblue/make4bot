@@ -16,6 +16,7 @@ $callbackData = $input['callback_query']['data'];
 //answer messagee
 $msg['start'] = 'Hallo '.$sender['first_name'].PHP_EOL.'Schön, dass Sie diesen Bot gefunden haben.'.PHP_EOL.
   'Dieser Bot befindet sich noch in der Entwicklungsphase.';
+$msg['start_desc'] = 'Wähle eine Reihe aus:';
 $msg['help'] = 'Hallo '.$sender['first_name'].PHP_EOL.'Womit kann ich helfen?';
 
 
@@ -37,11 +38,16 @@ if ($chatId) {    //to hide warnings from website
 
 //command functions
 function start ($chatId) {
+  global $msg;
   //init field
-  for ($row=0; $row<7; $row++)
-    for ($col=0; $col<7; $col++)
+  for ($row = 0; $row < 7; $row++)
+    for ($col = 0; $col < 7; $col++)
       $field[$row][$col] = 0;
   printField($chatId, $field);
+
+  for ($col = 0; $col < 7; $col++)
+    $but[0][$col] = array('text' => strval($col+1), 'callback_data' => '/col '.strval($col));
+  inlineKeys($but, $chatId, $msg['start_desc']);
 }//start
 
 ?>
