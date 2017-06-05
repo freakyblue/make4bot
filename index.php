@@ -1,6 +1,7 @@
 <?php
 $debug = TRUE;
 
+define('white', '⚪️', true);
 define('blue', '🔵', true);
 define('red', '🔴', true);
 
