@@ -1,10 +1,6 @@
 <?php
 $debug = TRUE;
 
-define('white', '⚪️', true);
-define('blue', '🔵', true);
-define('red', '🔴', true);
-
 require_once('token.php');    //bot identifier
 require_once('basicfunctions.php');    //bot identifier
 require_once('../../mysqli_connect.php');   //db-connection
@@ -27,6 +23,7 @@ if ($chatId) {    //to hide warnings from website
   switch ($command) {
     case '/start':
       sendMsg($chatId, $msg['start'], '');
+      start($chatId);
       break;
     case '/help':
       sendMsg($chatId, $msg['help'], '');
@@ -39,5 +36,8 @@ if ($chatId) {    //to hide warnings from website
 
 
 //command functions
+function start ($chatId) {
+  //printField($chatId, $field);
+}//start
 
 ?>
