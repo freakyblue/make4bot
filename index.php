@@ -16,6 +16,11 @@ $sender = $input['message']['from'];
 $callbackId = $input['callback_query']['from']['id'];
 $callbackData = $input['callback_query']['data'];
 
+//answer messagee
+$msg['start'] = 'Hallo '.$sender['first_name'].PHP_EOL.'Schön, dass Sie diesen Bot gefunden haben.'.PHP_EOL.
+  'Dieser Bot befindet sich noch in der Entwicklungsphase.';
+$msg['help'] = 'Hallo '.$sender['first_name'].PHP_EOL.'Womit kann ich helfen?';
+
 
 if ($chatId) {    //to hide warnings from website
   switch ($command) {
@@ -31,11 +36,6 @@ if ($chatId) {    //to hide warnings from website
   }//switch
 }//if
 
-
-//answer messagee
-$msg['start'] = 'Hallo '.$sender['first_name'].PHP_EOL.'Schön, dass Sie diesen Bot gefunden haben.'.PHP_EOL.
-  'Dieser Bot befindet sich noch in der Entwicklungsphase.';
-$msg['help'] = 'Hallo '.$sender['first_name'].PHP_EOL.'Womit kann ich helfen?';
 
 //command functions
 
