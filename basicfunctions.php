@@ -15,26 +15,28 @@ function sendMsg ($chatId, $msg, $mode) {
 }//sendMsg
 
 function printField($chatId, $field) {
+  $out = '`';
   for ($row=0; $row<=count($field); $row++) {
     for ($col=0; $col<count($field[0]); $col++) {
       if ($row == count($field)) {
-        $out .= '`'.($col+1).'  `';
+        $out .= ' '.($col+1).' ';
         continue;
       }//if
       switch ($field[$row][$col]) {
         case 1:
-          $out .= RED;
+          $out .= RED.' ';
           break;
         case 2:
-          $out .= BLUE;
+          $out .= BLUE.' ';
           break;
         default:
-          $out .= WHITE;
+          $out .= WHITE.' ';
           break;
       }//switch
     }//for
     $out .= urlencode("\n");
   }//for
+  $out .= '`';
   sendMsg($chatId, $out, 'Markdown');
 }//printField
 

@@ -37,7 +37,11 @@ if ($chatId) {    //to hide warnings from website
 
 //command functions
 function start ($chatId) {
-  //printField($chatId, $field);
+  //init field
+  for ($row=0; $row<7; $row++)
+    for ($col=0; $col<7; $col++)
+      $field[$row][$col] = 0;
+  printField($chatId, $field);
 }//start
 
 ?>
