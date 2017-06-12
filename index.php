@@ -3,7 +3,7 @@ $debug = TRUE;
 
 require_once('token.php');    //bot identifier
 require_once('basicfunctions.php');    //bot identifier
-require_once('../../mysqli_connect.php');   //db-connection
+//require_once('../../mysqli_connect.php');   //db-connection
 
 $input = json_decode(file_get_contents('php://input'), TRUE);
 $chatId = $input['message']['chat']['id'];
@@ -13,10 +13,11 @@ $sender = $input['message']['from'];
 $callbackId = $input['callback_query']['from']['id'];
 $callbackData = $input['callback_query']['data'];
 
-//answer messagee
+//answer messages
 $msg['start'] = 'Hallo '.$sender['first_name'].PHP_EOL.'Schön, dass Sie diesen Bot gefunden haben.'.PHP_EOL.
   'Dieser Bot befindet sich noch in der Entwicklungsphase.';
-$msg['selection'] = 'Wähle eine Reihe aus:';
+$msg['s2'] = 'Spiele gegen einen menschlichen Gegner';
+$msg['selection'] = 'Wähle eine Spalte aus:';
 $msg['help'] = 'Hallo '.$sender['first_name'].PHP_EOL.'Womit kann ich helfen?';
 $msg['playerwins'] = 'Herzlichen Glückwunsch.'.PHP_EOL.'Sie haben gewonnen';
 $msg['botwins'] = 'Muhaha! I won!'.PHP_EOL.'Rise of the machines!';
@@ -27,9 +28,11 @@ if ($chatId) {    //to hide warnings from website
   switch ($command) {
     case '/start':
       sendMsg($chatId, $msg['start'], '');
-      if ($arg1 == '2') $twoPlayer = TRUE;
-      else $twoPlayer = FALSE;
-      start($chatId, $twoPlayer);
+      start($chatId);
+      break;
+    case '/s2':
+      sendMsg($chatId, $msg['s2'], '');
+      s2($chatId);
       break;
     case '/help':
       sendMsg($chatId, $msg['help'], '');
@@ -49,7 +52,7 @@ if($input['callback_query']) {
   //printField($callbackId, decField($arg2));
   switch($command) {
     case '/col':
-      updateField($callbackId, $arg1, $arg2, $arg3);
+      updateField($callbackId, $arg1, $arg2);
       break;
     default:
       break;
@@ -59,35 +62,45 @@ if($input['callback_query']) {
 
 //command functions
 
-function updateField ($callbackId, $col, $encField, $twoPlayer) {
+function updateField ($callbackId, $col, $encField) {
   global $msg;
   $field = addStone(decField($encField), $col, 1);
   printField($callbackId, $field);
   if (checkWin($callbackId, $field) == 1)
     sendMsg($callbackId, $msg['playerwins'], '');
   else {
-    if (!$twoPlayer)
-      $field = playBot($field);
-    else
-      //@TODO 2 player mode
+    $field = playBot($field);
     if ($field == FALSE)
       sendMsg($callbackId, $msg['remi'], '');
     printField($callbackId, $field);
     if (checkWin($callbackId, $field) == 2)
       sendMsg($callbackId, $msg['botwins'], '');
     else
-      printSelection($callbackId, $field, $msg['selection'], $twoPlayer);
+      printSelection($callbackId, $field, $msg['selection']);
   }//else
 }//updateField
 
-function start ($chatId, $twoPlayer) {
+function start ($chatId) {
   global $msg;
   //init field
   for ($row = 0; $row < 7; $row++)
     for ($col = 0; $col < 7; $col++)
       $field[$row][$col] = 0;
   printField($chatId, $field);
-  printSelection($chatId, $field, $msg['selection'], $twoPlayer);
+  printSelection($chatId, $field, $msg['selection']);
 }//start
+
+
+function s2 ($chatId) {
+  global $msg;
+  //init field
+  register($chatId);
+  //findOpponent()
+  for ($row = 0; $row < 7; $row++)
+    for ($col = 0; $col < 7; $col++)
+      $field[$row][$col] = 0;
+  printField($chatId, $field);
+  printSelection($chatId, $field, $msg['selection']);
+}//s2
 
 ?>

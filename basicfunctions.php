@@ -3,7 +3,10 @@ define('WHITE', '⚪️', true);
 define('RED', '🔴', true);  //user plays red 1
 define('BLUE', '🔵', true); //bot plays blue 2
 
+require_once('../../mysqli_connect.php');
+
 $website = 'https://api.telegram.org/bot'.$token;
+
 
 function addStone ($field, $col, $player) {
   for ($row = 0; $row < count($field); $row++)
@@ -148,11 +151,11 @@ function printField($chatId, $field) {
   sendMsg($chatId, $out, 'Markdown');
 }//printField
 
-function printSelection ($chatId, $field, $msg, $twoPlayer) {
+function printSelection ($chatId, $field, $msg) {
   foreach (possibleCols($field) as $col)
     $but[0][] = array(
       'text' => ' '.strval($col+1).' ',
-      'callback_data' => '/col '.strval($col).' '.encField($field).' '.$twoPlayer
+      'callback_data' => '/col '.strval($col).' '.encField($field)
     );
   inlineKeys($but, $chatId, $msg);
 }//printSelection
@@ -169,6 +172,13 @@ function rating ($field) {
   pr($rating);
   return $rating;
 }//rating
+
+function register($chatId) {
+  global $dbc;
+  @mysqli_query($dbc,
+    'INSERT INTO `bot_make4bot_s2` (`chat_id`, `time`) VALUES ('.$chatId.', CURRENT_TIMESTAMP)'
+  );
+}//register
 
 function sendMsg ($chatId, $msg, $mode) {
   if ($mode == '') $msg = urlencode($msg);
