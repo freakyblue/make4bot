@@ -72,6 +72,26 @@ function encField ($field) {
   return $out;
 }//encField
 
+function findOpponent($chatId) {
+  global $dbc;
+  $opponents = mysqli_fetch_array(@mysqli_query(
+    $dbc, 'SELECT * FROM `bot_make4bot_s2` WHERE `chat_id` != '.$chatId.' AND
+    `time` > DATE_SUB(CURRENT_TIMESTAMP,INTERVAL 90 MINUTE) ORDER BY `time` ASC LIMIT 1'
+  ));
+  if (isset($opponents)) {
+    @mysqli_query(
+      $dbc, 'DELETE FROM `bot_make4bot_s2` WHERE `chat_id` = '.$opponents['chat_id'].' AND
+      `time` = \''.$opponents['time'].'\' LIMIT 1'
+    );
+    @mysqli_query(
+      $dbc, 'INSERT INTO `bot_make4bot_games` (`player1`, `player2`, `last_move`)
+      VALUES ('.$chatId.', '.$opponents['chat_id'].', CURRENT_TIMESTAMP)'
+    );
+  }//if
+  else $opponents['chat_id'] = 0;
+  return $opponents['chat_id'];
+}//findOpponent
+
 function inlineKeys ($buttons, $chatId, $msg) {
   $keyboard = json_encode(array('inline_keyboard' => $buttons));
   apiRequest('sendmessage?parse_mode=Markdown&chat_id='.$chatId.'&text='.urlencode($msg).'&reply_markup='.$keyboard);

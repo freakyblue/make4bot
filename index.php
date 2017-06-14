@@ -22,6 +22,8 @@ $msg['help'] = 'Hallo '.$sender['first_name'].PHP_EOL.'Womit kann ich helfen?';
 $msg['playerwins'] = 'Herzlichen Glückwunsch.'.PHP_EOL.'Sie haben gewonnen';
 $msg['botwins'] = 'Muhaha! I won!'.PHP_EOL.'Rise of the machines!';
 $msg['remi'] = 'Noone won!'.PHP_EOL.'Send /start play a new game';
+$msg['no_opp'] = 'Sorry, at the moment there is no opponent for you. Let\'s wait you someone...';
+
 
 if ($chatId) {    //to hide warnings from website
   $arg1 = explode(' ', $inputMsg)[1];
@@ -94,8 +96,14 @@ function start ($chatId) {
 function s2 ($chatId) {
   global $msg;
   //init field
-  register($chatId);
-  //findOpponent()
+
+  $opponent = findOpponent($chatId);
+
+  if ($opponent == 0) {
+    register($chatId);
+    sendMsg($chatId, $msg['no_opp'], '');
+    return 0;
+  }//if
   for ($row = 0; $row < 7; $row++)
     for ($col = 0; $col < 7; $col++)
       $field[$row][$col] = 0;
