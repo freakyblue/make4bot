@@ -14,7 +14,8 @@ $callbackId = $input['callback_query']['from']['id'];
 $callbackData = $input['callback_query']['data'];
 
 //answer messages
-$msg['start'] = 'Hallo '.$sender['first_name'].PHP_EOL.'Schön, dass Sie diesen Bot gefunden haben.'.PHP_EOL.
+$msg['start'] = 'Hallo '.$sender['first_name'].PHP_EOL.
+  'Schön, dass Sie diesen Bot gefunden haben.'.PHP_EOL.
   'Dieser Bot befindet sich noch in der Entwicklungsphase.';
 $msg['s2'] = 'Spiele gegen einen menschlichen Gegner';
 $msg['selection'] = 'Wähle eine Spalte aus:';
@@ -78,7 +79,7 @@ function updateField ($callbackId, $col, $encField) {
     if (checkWin($callbackId, $field) == 2)
       sendMsg($callbackId, $msg['botwins'], '');
     else
-      printSelection($callbackId, $field, $msg['selection']);
+      printSelection($callbackId, $field, $msg['selection'], 1);
   }//else
 }//updateField
 
@@ -89,7 +90,7 @@ function start ($chatId) {
     for ($col = 0; $col < 7; $col++)
       $field[$row][$col] = 0;
   printField($chatId, $field);
-  printSelection($chatId, $field, $msg['selection']);
+  printSelection($chatId, $field, $msg['selection'], 1);
 }//start
 
 
@@ -108,7 +109,7 @@ function s2 ($chatId) {
     for ($col = 0; $col < 7; $col++)
       $field[$row][$col] = 0;
   printField($chatId, $field);
-  printSelection($chatId, $field, $msg['selection']);
+  printSelection($chatId, $field, $msg['selection'], 2);
 }//s2
 
 ?>

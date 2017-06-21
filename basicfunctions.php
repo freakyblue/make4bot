@@ -171,12 +171,19 @@ function printField($chatId, $field) {
   sendMsg($chatId, $out, 'Markdown');
 }//printField
 
-function printSelection ($chatId, $field, $msg) {
-  foreach (possibleCols($field) as $col)
-    $but[0][] = array(
-      'text' => ' '.strval($col+1).' ',
-      'callback_data' => '/col '.strval($col).' '.encField($field)
-    );
+function printSelection ($chatId, $field, $msg, $twoPlayer) {
+  foreach (possibleCols($field) as $col) {
+    if ($twoPlayer == 1)
+      $but[0][] = array(
+        'text' => ' '.strval($col+1).' ',
+        'callback_data' => '/col '.strval($col).' '.encField($field)
+      );
+    else
+      $but[0][] = array(
+        'text' => ' '.strval($col+1).' ',
+        'callback_data' => '/s2_col '.strval($col).' '.encField($field)
+      );
+  }//foreach
   inlineKeys($but, $chatId, $msg);
 }//printSelection
 
